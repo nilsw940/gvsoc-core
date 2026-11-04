@@ -16,6 +16,35 @@ vp_model_include_directories(
     DIRECTORY "include"
     )
 
+vp_model(NAME memory.dramsys_v3
+    SOURCES "dramsys_v3.cpp"
+    )
+
+vp_model_include_directories(
+    NAME memory.dramsys_v3
+    DIRECTORY "include"
+    )
+
+set(DRAMSYS_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../../../third_party/DRAMSys/ext/include/)
+set(MEMSPEC_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../../../third_party/DRAMSys/src/)
+
+set(DRAMSYS_LIB ${CMAKE_CURRENT_SOURCE_DIR}/../../../third_party/DRAMSys/ext/lib/libdramsys.a)
+set(DRAMPOWER_LIB ${CMAKE_CURRENT_SOURCE_DIR}/../../../third_party/DRAMSys/ext/lib/libDRAMPower.a)
+set(SQLITE_LIB ${CMAKE_CURRENT_SOURCE_DIR}/../../../third_party/DRAMSys/ext/lib/libsqlite3.a)
+
+vp_model_include_directories(
+    NAME memory.dramsys_v3
+    DIRECTORY ${DRAMSYS_INC_DIRS}
+    )
+vp_model_include_directories(
+    NAME memory.dramsys_v3
+    DIRECTORY ${MEMSPEC_INC_DIRS}
+    )
+
+vp_model_link_libraries(NAME memory.dramsys_v3 NO_M32 1 LIBRARY ${DRAMSYS_LIB})
+vp_model_link_libraries(NAME memory.dramsys_v3 NO_M32 1 LIBRARY ${DRAMPOWER_LIB})
+vp_model_link_libraries(NAME memory.dramsys_v3 NO_M32 1 LIBRARY ${SQLITE_LIB})
+
 vp_model(NAME memory.pim_component
     SOURCES "pim_component.cpp"
     )
@@ -24,9 +53,6 @@ vp_model_include_directories(
     NAME memory.pim_component
     DIRECTORY "include"
     )
-
-set_source_files_properties(dramsys.cpp dramsys_v2.cpp PROPERTIES
-    COMPILE_DEFINITIONS "DRAMSYS_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
 
 # Ramulator 2.x timing model. Built only when a Ramulator install is available,
 # located via the RAMULATOR_HOME env var (a dir containing libramulator.so and

@@ -16,7 +16,7 @@
 
 import gvsoc.systree as st
 import gvsoc.signature
-
+from pathlib import Path
 
 class Dramsys(st.Component):
 
@@ -25,8 +25,8 @@ class Dramsys(st.Component):
 
         super(Dramsys, self).__init__(parent, name)
 
-        if version not in (1, 2):
-            raise ValueError(f"Dramsys: version must be 1 or 2, got {version}")
+        if version not in (1, 2, 3):
+            raise ValueError(f"Dramsys: version must be 1, 2 or 3, got {version}")
 
         self.version = version
 
@@ -34,28 +34,43 @@ class Dramsys(st.Component):
         # coexist in one translation unit (both define vp::IoReq), so the
         # v2 variant lives in dramsys_v2.cpp as its own .so. Pick which
         # one to load based on the requested protocol version.
+        # v3 is based on v2 linking a static library of DRAMSys instead
+        # of a dynamic one
         if version == 1:
             self.set_component('memory.dramsys')
-        else:
+        elif version == 2:
             self.set_component('memory.dramsys_v2')
+        else:
+            self.set_component('memory.dramsys_v3')
 
-        # v2: the beat width of the input port. The true value comes from
+        # v2/3: the beat width of the input port. The true value comes from
         # the DRAMSys memspec, which only the DRAMSys library can compute, so
         # the target description must state it here and the C++ constructor
         # fatals if it does not match the memspec (fail loudly, no silent
         # width mismatch).
-        if version == 2 and access_size <= 0:
+        if (version == 2 or version == 3) and access_size <= 0:
             raise ValueError(
-                "Dramsys v2 requires access_size= (the memspec access size "
+                "Dramsys v2/3 requires access_size= (the memspec access size "
                 "in bytes) for its IoV2Beat input signature; the C++ model "
                 "validates it against the DRAMSys memspec at startup")
         self.access_size = access_size
+
+
+        project_root = Path(__file__).resolve().parents[3]
+
+        dramsys_configs = (
+            project_root
+            / "third_party"
+            / "DRAMSys"
+            / "configs"
+        )
 
         self.add_properties({
             'require_systemc': True,
             'dram-type': dram_type,
             'pim-support': pim_support,
             'access-size': access_size,
+            'dramsys-configs': str(dramsys_configs),
         })
 
     def i_INPUT(self) -> st.SlaveItf:
