@@ -78,21 +78,21 @@ SC_MODULE(dramsys_conv) {
                 }
                 read_req_list.push_back(req);
                 inflight_read_cnt++;
-                 std::cout << sc_time_stamp() <<"  ---- Accept a Read Req -----" << std::endl;
+                // std::cout << sc_time_stamp() <<"  ---- Accept a Read Req -----" << std::endl;
             }
             if (payload.get_command() == tlm::TLM_WRITE_COMMAND) {
                 if (req.is_write == 0) {
                     SC_REPORT_FATAL("CONV", "end write request, but pop read req");
                 }
                 write_req_list.push_back(req);
-                 std::cout << sc_time_stamp() <<"  ---- Accept a Write Req -----" << std::endl;
+                // std::cout << sc_time_stamp() <<"  ---- Accept a Write Req -----" << std::endl;
             }
             all_req_list.pop_front();
             if (async_callback_instance && async_callback_update_request_meth) {
                 async_callback_update_request_meth(async_callback_instance);
             }
         } else if (phase == BEGIN_RESP) {
-             std::cout << sc_time_stamp() <<"  ---- Response Come-----" << std::endl;
+             // std::cout << sc_time_stamp() <<"  ---- Response Come-----" << std::endl;
             if (payload.get_command() == tlm::TLM_READ_COMMAND) {
                 // check if the response can be find in request list
                 req_t req;
@@ -195,11 +195,6 @@ SC_MODULE(dramsys_conv) {
     void sendToTarget(tlm_generic_payload & payload, const tlm_phase &phase, const sc_time &delay) {
         tlm_phase TPhase = phase;
         sc_time TDelay = delay;
-        std::cout << "payload=" << &payload
-                  << " data=" << static_cast<void *>(payload.get_data_ptr())
-                  << " length=" << payload.get_data_length() << " read=" << payload.is_read()
-                  << std::endl;
-
         iSocket->nb_transport_fw(payload, TPhase, TDelay);
     }
 
@@ -219,7 +214,7 @@ SC_MODULE(dramsys_conv) {
         payload->set_dmi_allowed(false);
 
         if (strob_enable) {
-            std::cout << sc_time_stamp() << "  ---- Write With Strobe-----" << std::endl;
+            // std::cout << sc_time_stamp() << "  ---- Write With Strobe-----" << std::endl;
             payload->set_byte_enable_length(length);
             // Allocate a strobe buffer, this strobe buffer will be deleted with payload delete
             auto *strb = new unsigned char[length];
@@ -227,7 +222,7 @@ SC_MODULE(dramsys_conv) {
             memcpy(payload->get_byte_enable_ptr(), strb_buf, length);
 
         } else {
-            std::cout << sc_time_stamp() <<"  ---- Without Strobe-----" << std::endl;
+            // std::cout << sc_time_stamp() <<"  ---- Without Strobe-----" << std::endl;
             payload->set_byte_enable_ptr(nullptr);
             payload->set_byte_enable_length(0);
         }

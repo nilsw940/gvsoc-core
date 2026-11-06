@@ -31,7 +31,7 @@ struct GvsocMemspec {
 std::vector<uint64_t> list_of_DRAMburst;
 std::vector<uint64_t> list_of_DRAMsize;
 std::vector<DRAMSys::DRAMSys *> list_of_DRAMsys;
- std::unique_ptr<DRAMSys::PhysicalStorage> physicalStorage;
+std::vector<DRAMSys::PhysicalStorage *> list_of_storages;
 std::vector<dramsys_conv *> list_of_conv;
 std::vector<uint8_t *> list_of_wbuffer;
 std::vector<uint8_t *> list_of_wstrobe;
@@ -54,6 +54,7 @@ int add_dram(char *resources_path, char *simulationJson_path, GvsocMemspec *mems
 
     DRAMSys::DRAMSys *dramSys;
     dramsys_conv *conv;
+    DRAMSys::PhysicalStorage *physicalStorage;
 
     std::string dramsys_name = "DRAMSysCtrl";
     std::string conv_name = "dramsys_conv";
@@ -62,7 +63,7 @@ int add_dram(char *resources_path, char *simulationJson_path, GvsocMemspec *mems
     conv_name = conv_name + id_str;
 
     dramSys = new DRAMSys::DRAMSys(dramsys_name.c_str(), configuration);
-    physicalStorage = std::make_unique<DRAMSys::PhysicalStorage>(dramSys->memorySize());
+    physicalStorage = new DRAMSys::PhysicalStorage(dramSys->memorySize());
     dramSys->setBackingStore(physicalStorage->data());
     conv = new dramsys_conv(conv_name.c_str());
 
@@ -78,6 +79,7 @@ int add_dram(char *resources_path, char *simulationJson_path, GvsocMemspec *mems
     uint64_t dramMaxBurstByte = dramSys->getMemSpec().maxBytesPerBurst;
 
     // put them into vector container
+    list_of_storages.push_back(physicalStorage);
     list_of_DRAMsys.push_back(dramSys);
     list_of_conv.push_back(conv);
     list_of_DRAMsize.push_back(dramChannelSize);

@@ -123,11 +123,10 @@ private:
     vp::IoSlave    in_itf;
     vp::ClockEvent beat_event;
 
-    // DRAMSys C ABI handles
     int   dram_id = 0;
     GvsocMemspec memspec{};
     uint  access_size_clog = 0;
-    int   beat_width = 0;       // = memspec.access_size
+    int   beat_width = 0;
     // Shared pool serving beat-sized requests with their payload co-allocated;
     // read response beats are drawn from it and freed by the terminal master.
     vp::IoReqAllocator *beat_allocator = nullptr;
